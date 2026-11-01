@@ -95,6 +95,7 @@ export default {
       const body = await request.json();
       const message = String(body.message || '').trim();
       const instructions = String(body.instructions || '').trim();
+      const reasoningEffort = body.reasoning_effort === 'medium' ? 'medium' : 'high';
       let conversationId = body.conversation_id ? String(body.conversation_id) : '';
       if (!message) return json({ error: 'メッセージが空です' }, 400, request, env);
 
@@ -110,7 +111,7 @@ export default {
         model: MODEL,
         conversation: conversationId,
         input: [{ role: 'user', content: message }],
-        reasoning: { effort: 'high' },
+        reasoning: { effort: reasoningEffort },
         text: { verbosity: 'medium' },
         store: true,
         max_output_tokens: 12000
@@ -131,7 +132,8 @@ export default {
         usage,
         cost_usd: cost,
         pricing: PRICE,
-        model: MODEL
+        model: MODEL,
+        reasoning_effort: reasoningEffort
       }, 200, request, env);
     } catch (e) {
       return json({ error: e?.message || String(e) }, 500, request, env);
